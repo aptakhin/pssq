@@ -1,2 +1,4 @@
 .idea/
-
+dist/
+pssq.egg-info/
+venv/
