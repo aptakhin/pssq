@@ -233,6 +233,7 @@ def test_q():
     assert Q.SELECT().FROM("foo").ORDER("b", -1).END() == ('SELECT * FROM "foo" ORDER BY "b" DESC', ())
 
     assert Q.INSERT("foo").SET(a=5).RETURNING("a").END() == ('INSERT INTO "foo" ("a") VALUES ($1) RETURNING "a"', (5,))
+    assert Q.INSERT("foo").SET(a=5).RETURNING("*").END() == ('INSERT INTO "foo" ("a") VALUES ($1) RETURNING *', (5,))
 
     # Tests based on preserved order of kwargs are valid on Python 3.6+ only
     assert Q.INSERT("foo").SET(a=5, b=7).END() == ('INSERT INTO "foo" ("a", "b") VALUES ($1, $2)', (5, 7))
