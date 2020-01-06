@@ -25,17 +25,17 @@ def test_all():
     assert Q.select([Q.Unsafe("foo() AS qoo")]).from_("foo").where(a=5).end() == ('SELECT foo() AS qoo FROM "foo" WHERE "a"=$1', (5,))
     assert Q.select([Q.Unsafe("foo() AS qoo"), "boolka"]).from_("foo").where(a=5).end() == ('SELECT foo() AS qoo,"boolka" FROM "foo" WHERE "a"=$1', (5,))
 
-    assert Q.insert("foo").set(a=5).end() == ('INSERT INTO "foo" ("a") VALUES ($1)', (5,))
-    assert Q.insert("foo").set(q=Q.Unsafe("4"), w=Q.Unsafe("now()"), a=5).end() == ('INSERT INTO "foo" ("q", "w", "a") VALUES (4, now(), $1)', (5,))
+    assert Q.insert("foo").set_(a=5).end() == ('INSERT INTO "foo" ("a") VALUES ($1)', (5,))
+    assert Q.insert("foo").set_(q=Q.Unsafe("4"), w=Q.Unsafe("now()"), a=5).end() == ('INSERT INTO "foo" ("q", "w", "a") VALUES (4, now(), $1)', (5,))
 
     assert Q.select().from_("foo").order("b").end() == ('SELECT * FROM "foo" ORDER BY "b"', ())
     assert Q.select().from_("foo").order("b", -1).end() == ('SELECT * FROM "foo" ORDER BY "b" DESC', ())
 
-    assert Q.insert("foo").set(a=5).returning("a").end() == ('INSERT INTO "foo" ("a") VALUES ($1) RETURNING "a"', (5,))
+    assert Q.insert("foo").set_(a=5).returning("a").end() == ('INSERT INTO "foo" ("a") VALUES ($1) RETURNING "a"', (5,))
 
-    assert Q.update("foo").set(a=5, b=7).end() == ('UPDATE "foo" SET "a"=$1, "b"=$2', (5, 7))
-    assert Q.update("foo").set(a=5, b=7).where(a=2).end() == ('UPDATE "foo" SET "a"=$1, "b"=$2 WHERE "a"=$3', (5, 7, 2))
-    assert Q.update("foo").set(a=Q.Unsafe("now()")).where(a=2).end() == ('UPDATE "foo" SET "a"=now() WHERE "a"=$1', (2,))
+    assert Q.update("foo").set_(a=5, b=7).end() == ('UPDATE "foo" SET "a"=$1, "b"=$2', (5, 7))
+    assert Q.update("foo").set_(a=5, b=7).where(a=2).end() == ('UPDATE "foo" SET "a"=$1, "b"=$2 WHERE "a"=$3', (5, 7, 2))
+    assert Q.update("foo").set_(a=Q.Unsafe("now()")).where(a=2).end() == ('UPDATE "foo" SET "a"=now() WHERE "a"=$1', (2,))
 
     assert Q.delete("foo").end() == ('DELETE "foo"', ())
     assert Q.delete("foo").where(a=2).end() == ('DELETE "foo" WHERE "a"=$1', (2,))

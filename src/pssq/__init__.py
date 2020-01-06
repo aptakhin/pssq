@@ -154,7 +154,7 @@ class Q:
             self._where.append(Expr(Expr.Kwarg, key, value))
         return self
 
-    def set(self, *args, **kwargs):
+    def set_(self, *args, **kwargs):
         if args:
             key = args[0] if len(args) > 1 else None
             value = args[1] if len(args) > 1 else args[0]
