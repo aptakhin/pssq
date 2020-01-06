@@ -72,8 +72,9 @@ class Expr:
                 idx += 1
 
             res = insert, key, value, idx
+        else:
+            raise ValueError("Unhandled type %s" % repr(self.tp))
 
-        # print(res)
         return res
 
     def __repr__(self):
@@ -187,7 +188,7 @@ class Q:
             else:
                 q += " *"
 
-            q += " from " + quoted(self._from)
+            q += " FROM " + quoted(self._from)
         elif self.main_cmd == self._M_INSERT:
             q += " INTO " + quoted(self._insert_to)
         elif self.main_cmd == self._M_UPDATE:
@@ -219,11 +220,11 @@ class Q:
                 set_fields.append("%s=%s" % (add_insert, add_value))
                 set_args += add_args
 
-            q += " set " + ", ".join(set_fields)
+            q += " SET " + ", ".join(set_fields)
             q_args += set_args
 
         if self._where:
-            q += " where"
+            q += " WHERE"
             where_fields = []
             where_args = ()
             for wh in self._where:
@@ -240,13 +241,13 @@ class Q:
             order_fields = []
             for (field, order) in self._order:
                 order_fields.append(quoted(field) + (" DESC" if order == -1 else ""))
-            q += " order BY " + ", ".join(order_fields)
+            q += " ORDER BY " + ", ".join(order_fields)
 
         if self._on_conflict_do_nothing:
             q += " ON CONFLICT DO NOTHING"
 
         if self._returning:
-            q += " returning " + ", ".join(quoted(f) if f != "*" else f for f in self._returning)
+            q += " RETURNING " + ", ".join(quoted(f) if f != "*" else f for f in self._returning)
 
         if debug_print:
             print('Q: %s; %s' % (q, q_args))
