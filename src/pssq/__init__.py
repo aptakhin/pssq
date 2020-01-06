@@ -90,7 +90,7 @@ class Q:
     _M_DELETE = "DELETE"
 
     @staticmethod
-    def SELECT(fields=None):
+    def select(fields=None):
         q = Q(main_cmd=Q._M_SELECT)
         if fields is None:
             fields = "*"
@@ -104,21 +104,21 @@ class Q:
         return q
 
     @staticmethod
-    def INSERT(table):
+    def insert(table):
         q = Q(main_cmd=Q._M_INSERT)
-        q._INSERT_TO = table
+        q._insert_to = table
         return q
 
     @staticmethod
-    def UPDATE(table):
+    def update(table):
         q = Q(main_cmd=Q._M_UPDATE)
-        q._UPDATE = table
+        q._update = table
         return q
 
     @staticmethod
-    def DELETE(table):
+    def delete(table):
         q = Q(main_cmd=Q._M_DELETE)
-        q._DELETE = table
+        q._delete = table
         return q
 
     def __init__(self, main_cmd=None):
@@ -127,54 +127,54 @@ class Q:
         self.select_fields = None
         self.update_fields = None
 
-        self._FROM = None
-        self._INSERT_TO = None
-        self._UPDATE = None
-        self._DELETE = None
+        self._from = None
+        self._insert_to = None
+        self._update = None
+        self._delete = None
 
-        self._WHERE = []
-        self._SET = []
-        self._ORDER = []
-        self._RETURNING = []
-        self._ON_CONFLICT_DO_NOTHING = None
+        self._where = []
+        self._set = []
+        self._order = []
+        self._returning = []
+        self._on_conflict_do_nothing = None
 
-    def FROM(self, table):
-        self._FROM = table
+    def from_(self, table):
+        self._from = table
         return self
 
-    def WHERE(self, *args, **kwargs):
+    def where(self, *args, **kwargs):
         if args and kwargs:
-            raise RuntimeError("Can't understand args and kwargs in WHERE")
+            raise RuntimeError("Can't understand args and kwargs in where")
         if args:
             key = args[0] if len(args) > 1 else None
             value = args[1] if len(args) > 1 else args[0]
-            self._WHERE.append(Expr(Expr.Arg, key, value))
+            self._where.append(Expr(Expr.Arg, key, value))
         for key, value in kwargs.items():
-            self._WHERE.append(Expr(Expr.Kwarg, key, value))
+            self._where.append(Expr(Expr.Kwarg, key, value))
         return self
 
-    def SET(self, *args, **kwargs):
+    def set(self, *args, **kwargs):
         if args:
             key = args[0] if len(args) > 1 else None
             value = args[1] if len(args) > 1 else args[0]
-            self._SET.append(Expr(Expr.Arg, key, value))
+            self._set.append(Expr(Expr.Arg, key, value))
         for key, value in kwargs.items():
-            self._SET.append(Expr(Expr.Kwarg, key, value))
+            self._set.append(Expr(Expr.Kwarg, key, value))
         return self
 
-    def ORDER(self, field, order=1):
-        self._ORDER.append((field, order))
+    def order(self, field, order=1):
+        self._order.append((field, order))
         return self
 
-    def RETURNING(self, *args):
-        self._RETURNING.extend(args)
+    def returning(self, *args):
+        self._returning.extend(args)
         return self
 
-    def ON_CONFLICT_DO_NOTHING(self):
-        self._ON_CONFLICT_DO_NOTHING = True
+    def on_conflict_do_nothing(self):
+        self._on_conflict_do_nothing = True
         return self
 
-    def END(self, debug_print=False):
+    def end(self, debug_print=False):
         q = ""
         q_args = ()
         idx = 1
@@ -187,19 +187,19 @@ class Q:
             else:
                 q += " *"
 
-            q += " FROM " + quoted(self._FROM)
+            q += " from " + quoted(self._from)
         elif self.main_cmd == self._M_INSERT:
-            q += " INTO " + quoted(self._INSERT_TO)
+            q += " INTO " + quoted(self._insert_to)
         elif self.main_cmd == self._M_UPDATE:
-            q += " " + quoted(self._UPDATE)
+            q += " " + quoted(self._update)
         elif self.main_cmd == self._M_DELETE:
-            q += " " + quoted(self._DELETE)
+            q += " " + quoted(self._delete)
 
         if self.main_cmd == self._M_INSERT:
             set_fields = []
             set_values = []
             set_args = ()
-            for wh in self._SET:
+            for wh in self._set:
                 add_insert, add_value, add_args, idx = wh.format(idx)
                 if not add_insert:
                     raise RuntimeError("Can't handle arg %s with INSERT" % wh)
@@ -214,19 +214,19 @@ class Q:
         if self.main_cmd == self._M_UPDATE:
             set_fields = []
             set_args = ()
-            for wh in self._SET:
+            for wh in self._set:
                 add_insert, add_value, add_args, idx = wh.format(idx)
                 set_fields.append("%s=%s" % (add_insert, add_value))
                 set_args += add_args
 
-            q += " SET " + ", ".join(set_fields)
+            q += " set " + ", ".join(set_fields)
             q_args += set_args
 
-        if self._WHERE:
-            q += " WHERE"
+        if self._where:
+            q += " where"
             where_fields = []
             where_args = ()
-            for wh in self._WHERE:
+            for wh in self._where:
                 add_insert, add_value, add_args, idx = wh.format(idx)
                 if add_insert:
                     where_fields.append("{add_insert}={add_value}".format(add_insert=add_insert, add_value=add_value))
@@ -236,17 +236,17 @@ class Q:
             q += " " + " AND ".join(where_fields)
             q_args += where_args
 
-        if self._ORDER:
+        if self._order:
             order_fields = []
-            for (field, order) in self._ORDER:
+            for (field, order) in self._order:
                 order_fields.append(quoted(field) + (" DESC" if order == -1 else ""))
-            q += " ORDER BY " + ", ".join(order_fields)
+            q += " order BY " + ", ".join(order_fields)
 
-        if self._ON_CONFLICT_DO_NOTHING:
+        if self._on_conflict_do_nothing:
             q += " ON CONFLICT DO NOTHING"
 
-        if self._RETURNING:
-            q += " RETURNING " + ", ".join(quoted(f) if f != "*" else f for f in self._RETURNING)
+        if self._returning:
+            q += " returning " + ", ".join(quoted(f) if f != "*" else f for f in self._returning)
 
         if debug_print:
             print('Q: %s; %s' % (q, q_args))

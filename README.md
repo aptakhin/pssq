@@ -1,13 +1,13 @@
 Prepares PostgreSQL queries for execution in more useful Pythonic way. Not ORM.
 
     >>> from pssq import Q
-    >>> Q.SELECT().FROM("foo").WHERE(a=5).END()
-    ('SELECT * FROM "foo" WHERE "a"=$1', (5,))
+    >>> Q.select().from_("foo").where(a=5).end()
+    ('SELECT * from "foo" where "a"=$1', (5,))
 
-    >>> Q.INSERT("foo").SET(a=5, b=7).END()
+    >>> Q.insert("foo").set(a=5, b=7).end()
     ('INSERT INTO "foo" ("a", "b") VALUES ($1, $2)', (5, 7))
     
-    >>> Q.INSERT("foo").SET(q=Q.Unsafe("4"), w=Q.Unsafe("now()"), a=5).END()
+    >>> Q.insert("foo").set(q=Q.Unsafe("4"), w=Q.Unsafe("now()"), a=5).end()
     ('INSERT INTO "foo" ("q", "w", "a") VALUES (4, now(), $1)', (5,))
 
 

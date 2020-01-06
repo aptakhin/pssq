@@ -14,36 +14,36 @@ def test_expr():
 
 
 def test_all():
-    assert Q.SELECT().FROM("foo").WHERE(a=5).END() == ('SELECT * FROM "foo" WHERE "a"=$1', (5,))
-    assert Q.SELECT().FROM("foo").WHERE("a!=5").END() == ('SELECT * FROM "foo" WHERE a!=5', ())
-    assert Q.SELECT().FROM("foo").WHERE("a!=5").WHERE("b!=7").END() == ('SELECT * FROM "foo" WHERE a!=5 AND b!=7', ())
-    assert Q.SELECT().FROM("foo").WHERE("a=ANY({})", [2, 4]).END() == ('SELECT * FROM "foo" WHERE a=ANY($1)', ([2, 4],))
-    assert Q.SELECT().FROM("foo").WHERE("a=ANY({})", [2, 4]).WHERE("b={}", 3).END() == ('SELECT * FROM "foo" WHERE a=ANY($1) AND b=$2', ([2, 4], 3))
-    assert Q.SELECT().FROM("foo").WHERE("a<={}", 3).END() == ('SELECT * FROM "foo" WHERE a<=$1', (3,))
-    assert Q.SELECT("boo").FROM("foo").WHERE("a=5").END() == ('SELECT "boo" FROM "foo" WHERE a=5', ())
-    assert Q.SELECT(Q.Unsafe("foo() as qoo")).FROM("foo").WHERE(a=5).END() == ('SELECT foo() as qoo FROM "foo" WHERE "a"=$1', (5,))
-    assert Q.SELECT([Q.Unsafe("foo() as qoo")]).FROM("foo").WHERE(a=5).END() == ('SELECT foo() as qoo FROM "foo" WHERE "a"=$1', (5,))
-    assert Q.SELECT([Q.Unsafe("foo() as qoo"), "boolka"]).FROM("foo").WHERE(a=5).END() == ('SELECT foo() as qoo,"boolka" FROM "foo" WHERE "a"=$1', (5,))
+    assert Q.select().from_("foo").where(a=5).end() == ('SELECT * from "foo" where "a"=$1', (5,))
+    assert Q.select().from_("foo").where("a!=5").end() == ('SELECT * from "foo" where a!=5', ())
+    assert Q.select().from_("foo").where("a!=5").where("b!=7").end() == ('SELECT * from "foo" where a!=5 AND b!=7', ())
+    assert Q.select().from_("foo").where("a=ANY({})", [2, 4]).end() == ('SELECT * from "foo" where a=ANY($1)', ([2, 4],))
+    assert Q.select().from_("foo").where("a=ANY({})", [2, 4]).where("b={}", 3).end() == ('SELECT * from "foo" where a=ANY($1) AND b=$2', ([2, 4], 3))
+    assert Q.select().from_("foo").where("a<={}", 3).end() == ('SELECT * from "foo" where a<=$1', (3,))
+    assert Q.select("boo").from_("foo").where("a=5").end() == ('SELECT "boo" from "foo" where a=5', ())
+    assert Q.select(Q.Unsafe("foo() as qoo")).from_("foo").where(a=5).end() == ('SELECT foo() as qoo from "foo" where "a"=$1', (5,))
+    assert Q.select([Q.Unsafe("foo() as qoo")]).from_("foo").where(a=5).end() == ('SELECT foo() as qoo from "foo" where "a"=$1', (5,))
+    assert Q.select([Q.Unsafe("foo() as qoo"), "boolka"]).from_("foo").where(a=5).end() == ('SELECT foo() as qoo,"boolka" from "foo" where "a"=$1', (5,))
 
-    assert Q.INSERT("foo").SET(a=5).END() == ('INSERT INTO "foo" ("a") VALUES ($1)', (5,))
-    assert Q.INSERT("foo").SET(q=Q.Unsafe("4"), w=Q.Unsafe("now()"), a=5).END() == ('INSERT INTO "foo" ("q", "w", "a") VALUES (4, now(), $1)', (5,))
+    assert Q.insert("foo").set(a=5).end() == ('INSERT INTO "foo" ("a") VALUES ($1)', (5,))
+    assert Q.insert("foo").set(q=Q.Unsafe("4"), w=Q.Unsafe("now()"), a=5).end() == ('INSERT INTO "foo" ("q", "w", "a") VALUES (4, now(), $1)', (5,))
 
-    assert Q.SELECT().FROM("foo").ORDER("b").END() == ('SELECT * FROM "foo" ORDER BY "b"', ())
-    assert Q.SELECT().FROM("foo").ORDER("b", -1).END() == ('SELECT * FROM "foo" ORDER BY "b" DESC', ())
+    assert Q.select().from_("foo").order("b").end() == ('SELECT * from "foo" order BY "b"', ())
+    assert Q.select().from_("foo").order("b", -1).end() == ('SELECT * from "foo" order BY "b" DESC', ())
 
-    assert Q.INSERT("foo").SET(a=5).RETURNING("a").END() == ('INSERT INTO "foo" ("a") VALUES ($1) RETURNING "a"', (5,))
+    assert Q.insert("foo").set(a=5).returning("a").end() == ('INSERT INTO "foo" ("a") VALUES ($1) returning "a"', (5,))
 
-    assert Q.UPDATE("foo").SET(a=5, b=7).END() == ('UPDATE "foo" SET "a"=$1, "b"=$2', (5, 7))
-    assert Q.UPDATE("foo").SET(a=5, b=7).WHERE(a=2).END() == ('UPDATE "foo" SET "a"=$1, "b"=$2 WHERE "a"=$3', (5, 7, 2))
-    assert Q.UPDATE("foo").SET(a=Q.Unsafe("now()")).WHERE(a=2).END() == ('UPDATE "foo" SET "a"=now() WHERE "a"=$1', (2,))
+    assert Q.update("foo").set(a=5, b=7).end() == ('UPDATE "foo" set "a"=$1, "b"=$2', (5, 7))
+    assert Q.update("foo").set(a=5, b=7).where(a=2).end() == ('UPDATE "foo" set "a"=$1, "b"=$2 where "a"=$3', (5, 7, 2))
+    assert Q.update("foo").set(a=Q.Unsafe("now()")).where(a=2).end() == ('UPDATE "foo" set "a"=now() where "a"=$1', (2,))
 
-    assert Q.DELETE("foo").END() == ('DELETE "foo"', ())
-    assert Q.DELETE("foo").WHERE(a=2).END() == ('DELETE "foo" WHERE "a"=$1', (2,))
+    assert Q.delete("foo").end() == ('DELETE "foo"', ())
+    assert Q.delete("foo").where(a=2).end() == ('DELETE "foo" where "a"=$1', (2,))
 
 
 def test_python36plus():
     # Tests based on preserved order of kwargs are valid on Python 3.6+ only
-    assert Q.INSERT("foo").SET(a=5, b=7).END() == ('INSERT INTO "foo" ("a", "b") VALUES ($1, $2)', (5, 7))
+    assert Q.insert("foo").set(a=5, b=7).end() == ('INSERT INTO "foo" ("a", "b") VALUES ($1, $2)', (5, 7))
 
 
 if __name__ == "__main__":
