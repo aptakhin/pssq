@@ -82,9 +82,6 @@ class Expr:
 
 
 class Q:
-    Unsafe = _Unsafe
-    Any = _Any
-
     _M_SELECT = "SELECT"
     _M_INSERT = "INSERT"
     _M_UPDATE = "UPDATE"
@@ -121,6 +118,14 @@ class Q:
         q = Q(main_cmd=Q._M_DELETE)
         q._delete = table
         return q
+
+    @staticmethod
+    def any(value):
+        return _Any(value)
+
+    @staticmethod
+    def unsafe(value):
+        return _Unsafe(value)
 
     def __init__(self, main_cmd=None):
         self.main_cmd = main_cmd
@@ -256,7 +261,7 @@ class Q:
 
     @staticmethod
     def _format_select_field(field):
-        if isinstance(field, Q.Unsafe):
+        if isinstance(field, _Unsafe):
             return field.value
         else:
             return quoted(field)
