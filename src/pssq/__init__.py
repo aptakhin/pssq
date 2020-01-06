@@ -114,9 +114,8 @@ class Q:
         return q
 
     @staticmethod
-    def delete(table):
+    def delete():
         q = Q(main_cmd=Q._M_DELETE)
-        q._delete = table
         return q
 
     @staticmethod
@@ -193,6 +192,8 @@ class Q:
             else:
                 q += " *"
 
+            q += " FROM " + quoted(self._from)
+        elif self.main_cmd == self._M_DELETE:
             q += " FROM " + quoted(self._from)
         elif self.main_cmd == self._M_INSERT:
             q += " INTO " + quoted(self._insert_to)

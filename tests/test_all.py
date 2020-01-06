@@ -37,8 +37,8 @@ def test_all():
     assert Q.update("foo").set_(a=5, b=7).where(a=2).end() == ('UPDATE "foo" SET "a"=$1, "b"=$2 WHERE "a"=$3', (5, 7, 2))
     assert Q.update("foo").set_(a=Q.unsafe("now()")).where(a=2).end() == ('UPDATE "foo" SET "a"=now() WHERE "a"=$1', (2,))
 
-    assert Q.delete("foo").end() == ('DELETE "foo"', ())
-    assert Q.delete("foo").where(a=2).end() == ('DELETE "foo" WHERE "a"=$1', (2,))
+    assert Q.delete().from_("foo").end() == ('DELETE FROM "foo"', ())
+    assert Q.delete().from_("foo").where(a=2).end() == ('DELETE FROM "foo" WHERE "a"=$1', (2,))
 
 
 def test_python36plus():
