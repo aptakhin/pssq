@@ -13,4 +13,12 @@ Prepares PostgreSQL queries for execution in more useful Pythonic way. Not ORM.
 
 ## Install
     
-    pip install pssq
+    pip3 install pssq
+    
+    
+## Tests
+
+    pip3 install pytest
+    PYTHONPATH=src py.test -s tests
+    
+    
