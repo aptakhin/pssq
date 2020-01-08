@@ -4,7 +4,7 @@ def quoted(s):
 
 
 class _Unsafe:
-    __slots__ = ["value"]
+    __slots__ = ['value']
 
     def __init__(self, value):
         self.value = value
@@ -13,11 +13,11 @@ class _Unsafe:
         return self.value
 
     def __repr__(self):
-        return "Q.Unsafe(%s)" % repr(self.value)
+        return 'Q.Unsafe(%s)' % repr(self.value)
 
 
 class _Any:
-    __slots__ = ["value"]
+    __slots__ = ['value']
 
     def __init__(self, value):
         self.value = value
@@ -26,12 +26,12 @@ class _Any:
         return self.value
 
     def __repr__(self):
-        return "Q.Any(%s)" % repr(self.value)
+        return 'Q.Any(%s)' % repr(self.value)
 
 
 class Expr:
-    Arg = "arg"
-    Kwarg = "kwarg"
+    Arg = 'arg'
+    Kwarg = 'kwarg'
 
     def __init__(self, tp, key, value=None):
         self.tp = tp
@@ -40,19 +40,19 @@ class Expr:
 
     def format(self, idx):
         if self.tp == self.Arg:
-            if self.key and "{}" in self.key:
+            if self.key and '{}' in self.key:
                 insert = None
-                key = self.key.replace("{}", "$%d" % idx)
+                key = self.key.replace('{}', '$%d' % idx)
                 value = (self.value,) if self.key is not None else ()
                 idx += 1
             elif isinstance(self.value, _Any):
                 insert = quoted(self.key)
-                key = "ANY($%d)" % idx
+                key = 'ANY($%d)' % idx
                 value = (self.value.value,)
                 idx += 1
             else:
                 insert = quoted(self.key) if self.key is not None else None
-                key = "$%d" % idx if self.key is not None else self.value
+                key = '$%d' % idx if self.key is not None else self.value
                 value = (self.value,) if self.key is not None else ()
                 idx += 1
 
@@ -63,39 +63,41 @@ class Expr:
                 key = str(self.value)
                 value = ()
             elif isinstance(self.value, _Any):
-                key = "ANY($%d)" % idx
+                key = 'ANY($%d)' % idx
                 value = (self.value.value,)
                 idx += 1
             else:
-                key = "$%d" % idx if self.key is not None else self.value
+                key = '$%d' % idx if self.key is not None else self.value
                 value = (self.value,) if self.key is not None else ()
                 idx += 1
 
             res = insert, key, value, idx
         else:
-            raise ValueError("Unhandled type %s" % repr(self.tp))
+            raise ValueError('Unhandled type %s' % repr(self.tp))
 
         return res
 
     def __repr__(self):
-        return 'Expr(%s, %s, %s)' % (repr(self.tp), repr(self.key), repr(self.value))
+        return 'Expr(%s, %s, %s)' % (repr(self.tp),
+                                     repr(self.key),
+                                     repr(self.value))
 
 
 class Q:
-    _M_SELECT = "SELECT"
-    _M_INSERT = "INSERT"
-    _M_UPDATE = "UPDATE"
-    _M_DELETE = "DELETE"
+    _M_SELECT = 'SELECT'
+    _M_INSERT = 'INSERT'
+    _M_UPDATE = 'UPDATE'
+    _M_DELETE = 'DELETE'
 
     @staticmethod
     def select(fields=None):
         q = Q(main_cmd=Q._M_SELECT)
         if fields is None:
-            fields = "*"
+            fields = '*'
         elif isinstance(fields, str):
-            fields = [f.strip() for f in fields.split(",")]
+            fields = [f.strip() for f in fields.split(',')]
 
-        if fields != "*" and not isinstance(fields, list):
+        if fields != '*' and not isinstance(fields, list):
             fields = [fields]
 
         q.select_fields = fields
@@ -128,7 +130,8 @@ class Q:
 
     def __init__(self, main_cmd=None):
         self.main_cmd = main_cmd
-        assert main_cmd in (None, Q._M_SELECT, Q._M_INSERT, Q._M_UPDATE, Q._M_DELETE)
+        assert main_cmd in (None, Q._M_SELECT, Q._M_INSERT,
+                            Q._M_UPDATE, Q._M_DELETE)
         self.select_fields = None
         self.update_fields = None
 
@@ -180,27 +183,28 @@ class Q:
         return self
 
     def end(self, debug_print=False):
-        q = ""
+        q = ''
         q_args = ()
         idx = 1
 
         q += self.main_cmd
 
         if self.main_cmd == self._M_SELECT:
-            if self.select_fields not in (None, "*"):
-                q += " " + ",".join(self._format_select_field(f) for f in self.select_fields)
+            if self.select_fields not in (None, '*'):
+                q += ' ' + ','.join(self._format_select_field(f)
+                                    for f in self.select_fields)
             else:
-                q += " *"
+                q += ' *'
 
-            q += " FROM " + quoted(self._from)
+            q += ' FROM ' + quoted(self._from)
         elif self.main_cmd == self._M_DELETE:
-            q += " FROM " + quoted(self._from)
+            q += ' FROM ' + quoted(self._from)
         elif self.main_cmd == self._M_INSERT:
-            q += " INTO " + quoted(self._insert_to)
+            q += ' INTO ' + quoted(self._insert_to)
         elif self.main_cmd == self._M_UPDATE:
-            q += " " + quoted(self._update)
+            q += ' ' + quoted(self._update)
         elif self.main_cmd == self._M_DELETE:
-            q += " " + quoted(self._delete)
+            q += ' ' + quoted(self._delete)
 
         if self.main_cmd == self._M_INSERT:
             set_fields = []
@@ -214,8 +218,8 @@ class Q:
                 set_values.append(add_value)
                 set_args += add_args
 
-            q += " (" + ", ".join(set_fields) + ")"
-            q += " VALUES (" + ", ".join(set_values) + ")"
+            q += ' (' + ', '.join(set_fields) + ')'
+            q += ' VALUES (' + ', '.join(set_values) + ')'
             q_args += set_args
 
         if self.main_cmd == self._M_UPDATE:
@@ -223,37 +227,42 @@ class Q:
             set_args = ()
             for wh in self._set:
                 add_insert, add_value, add_args, idx = wh.format(idx)
-                set_fields.append("%s=%s" % (add_insert, add_value))
+                set_fields.append('%s=%s' % (add_insert, add_value))
                 set_args += add_args
 
-            q += " SET " + ", ".join(set_fields)
+            q += ' SET ' + ', '.join(set_fields)
             q_args += set_args
 
         if self._where:
-            q += " WHERE"
+            q += ' WHERE'
             where_fields = []
             where_args = ()
             for wh in self._where:
                 add_insert, add_value, add_args, idx = wh.format(idx)
                 if add_insert:
-                    where_fields.append("{add_insert}={add_value}".format(add_insert=add_insert, add_value=add_value))
+                    where_fields.append('{add_insert}={add_value}'
+                                        .format(add_insert=add_insert,
+                                                add_value=add_value))
                 else:
-                    where_fields.append("{add_value}".format(add_value=add_value))
+                    where_fields.append('{add_value}'
+                                        .format(add_value=add_value))
                 where_args += add_args
-            q += " " + " AND ".join(where_fields)
+            q += ' ' + ' AND '.join(where_fields)
             q_args += where_args
 
         if self._order:
             order_fields = []
             for (field, order) in self._order:
-                order_fields.append(quoted(field) + (" DESC" if order == -1 else ""))
-            q += " ORDER BY " + ", ".join(order_fields)
+                order_fields.append(quoted(field) +
+                                    (' DESC' if order == -1 else ''))
+            q += ' ORDER BY ' + ', '.join(order_fields)
 
         if self._on_conflict_do_nothing:
-            q += " ON CONFLICT DO NOTHING"
+            q += ' ON CONFLICT DO NOTHING'
 
         if self._returning:
-            q += " RETURNING " + ", ".join(quoted(f) if f != "*" else f for f in self._returning)
+            q += ' RETURNING ' + ', '.join(
+                quoted(f) if f != '*' else f for f in self._returning)
 
         if debug_print:
             print('Q: %s; %s' % (q, q_args))
