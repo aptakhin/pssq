@@ -10,10 +10,15 @@ Builds PostgreSQL queries for execution in more useful Pythonic way. Not ORM.
     >>> Q.insert("foo").set(q=Q.unsafe("4"), w=Q.unsafe("now()"), a=5).end()
     ('INSERT INTO "foo" ("q", "w", "a") VALUES (4, now(), $1)', (5,))
 
-
 ## Install
     
     pip3 install pssq
+    
+    
+## Motivation
+
+Originally written for asyncpg service without ORM. Because writing bind variables for raw PostgreSQL is hard.
+    
     
     
 ## Tests

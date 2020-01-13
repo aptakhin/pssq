@@ -8,7 +8,7 @@ from distutils.core import setup
 
 setup(
 	name="pssq",
-	version="0.0.1",
+	version="0.0.2",
 	long_description=open(os.path.join(os.path.dirname(__file__), "README.md")).read(),
 	long_description_content_type="text/markdown",
 	package_dir={"pssq": "src/pssq"},
